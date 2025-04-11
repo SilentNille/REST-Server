@@ -17,7 +17,7 @@ const userSchema = new Schema<IUser>({
 // 3. Create a Model.
 const User = model<IUser>('User', userSchema);
 
-run().catch(err => console.log(err));
+run().catch((err: any) => console.log(err));
 
 async function run() {
   // 4. Connect to MongoDB
