@@ -48,3 +48,44 @@ GET http://localhost/api/publicUsers
 // Lösche den User mit der User-ID manfred
 ###
 DELETE  http://localhost/api/publicUsers/manfred
+
+###
+DELETE  http://localhost/api/publicUsers/admin
+
+// Versuche einen User mit einer bereits existierenden UserID anzulegen
+###
+POST http://localhost/api/publicUsers
+Content-Type: application/json
+
+{
+    "userID": "admin",
+    "firstName": "Duplicate",
+    "lastName": "User",
+    "password": "456",
+    "isAdministrator": true
+}
+
+// Versuche einen nicht existierenden User zu löschen
+###
+DELETE http://localhost/api/publicUsers/nonexistent_user
+
+// Versuche einen nicht existierenden User zu ändern
+###
+PUT http://localhost/api/publicUsers/nonexistent_user
+Content-Type: application/json
+
+{
+    "firstName": "Nobody",
+    "lastName": "Here"
+}
+
+// Versuche einen User ohne UserID anzulegen
+###
+POST http://localhost/api/publicUsers
+Content-Type: application/json
+
+{
+    "firstName": "Missing",
+    "lastName": "UserID",
+    "password": "789"
+}

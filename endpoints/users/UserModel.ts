@@ -1,25 +1,31 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// 1. Create an interface representing a document in MongoDB.
 export interface IUser {
   userID: string;
   password: string;
   firstName: string;
   lastName: string;
-  isAdministrator: boolean;
+  isAdministrator?: boolean;
+  id?: string;
 }
 
-// 2. Create a Schema corresponding to the document interface.
 const userSchema = new Schema<IUser>({
   userID: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  isAdministrator: { type: Boolean, required: true },
+  isAdministrator: { type: Boolean, default: false },
+}, {
+  toJSON: {
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+      delete ret._id;
+      return ret;
+    }
+  }
 });
 
-// Hash the password before saving the user document
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
@@ -27,5 +33,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// 3. Create a Model.
 export const User = model<IUser>('User', userSchema);

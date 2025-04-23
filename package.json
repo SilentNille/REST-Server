@@ -6,7 +6,8 @@
   "main": "HttpServer.ts",
   "scripts": {
     "start": "npm update && npx tsc && node ./dist/HttpServer.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"no testos\" && exit 1",
+    "zip": "zip -r rest-server.zip . -x \"*node_modules/*\" -x \"*dist/*\" -x \"*.github/*\" -x \".gitignore\" -x \"README.md\""
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
