@@ -6,7 +6,9 @@
   "main": "HttpServer.ts",
   "scripts": {
     "start": "npm update && npx tsc && node ./dist/HttpServer.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npm update && npx tsc && node ./dist/HttpServer.js",
+    "test": "echo \"no testos\" && exit 1",
+    "zip": "zip -r rest-server.zip . "
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
@@ -19,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
