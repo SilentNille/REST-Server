@@ -89,3 +89,30 @@ Content-Type: application/json
     "lastName": "UserID",
     "password": "789"
 }
+
+###
+PUT http://localhost/api/publicUsers/manfred
+Content-Type: application/json
+
+{
+"password" : "asdf"
+}
+
+// should be following
+# HTTP/1.1 200 OK
+# X-Powered-By Express
+# Content-Type application/json; charset=utf-8
+# Content-Length 153
+# ETag W/"99-whWApKwDt2tr907o6ZTWHH+voMA"
+# Date Fri, 02 May 2025 18:58:05 GMT
+# Connection keep-alive
+# Keep-Alive timeout=5
+# {
+#     "userID" : "manfred",
+#     "password" : "asdf",
+#     "firstName" : "Susi Sunkist",
+#     "lastName" : "Mustermann",
+#     "isAdministrator" : false,
+#     "__v" : 0,
+#     "id" : "681515bd7faab1c39ecf056e"
+# }

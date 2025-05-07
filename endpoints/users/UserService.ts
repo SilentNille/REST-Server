@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from './UserModel.js';
+import bcrypt from 'bcryptjs';
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -68,9 +69,15 @@ export const searchUserById = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { userID } = req.params;
+    const updateData = { ...req.body };
+    
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+    
     const updatedUser = await User.findOneAndUpdate(
       { userID },
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     if (!updatedUser) {
