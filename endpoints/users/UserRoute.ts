@@ -1,7 +1,15 @@
-import { User } from './UserModel.js';
 import express from 'express';
-import * as userMethods from './UserService.js';
+import { getUsers, createUser, deleteUser, searchUserById, updateUser } from './UserService.js';
+import { verifyToken, verifyAdmin } from '../authenticate/AuthService.js';
 
-// For next Meileinstein
+export const router = express.Router();
 
-// export default router;
+router.get('/', verifyToken, verifyAdmin, getUsers);
+
+router.post('/', verifyToken, verifyAdmin, createUser);
+
+router.get('/:userID', verifyToken, searchUserById);
+
+router.put('/:userID', verifyToken, updateUser);
+
+router.delete('/:userID', verifyToken, verifyAdmin, deleteUser);
