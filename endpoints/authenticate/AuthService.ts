@@ -62,12 +62,14 @@ export const authenticateUser = async (req: Request, res: Response) => {
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers.authorization;
+    const authHeader = req.headers.authorization;
     
-    if (!token) {
+    if (!authHeader) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+    
     const decoded = jwt.verify(token, JWT_SECRET) as DecodedUser;
     res.locals.user = decoded;
     next();
@@ -86,24 +88,30 @@ export const verifyAdmin = (req: Request, res: Response, next: NextFunction) => 
 
 export const createDefaultAdmin = async () => {
   try {
-    const existingAdmin = await User.findOne({ isAdministrator: true });
+    const existingAdmin = await User.findOne({ userID: 'admin' });
     
     if (!existingAdmin) {
-      const adminPassword = '123';
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      
       const defaultAdmin = new User({
         userID: 'admin',
-        password: hashedPassword,
+        password: '123',
         firstName: 'Admin',
         lastName: 'User',
         isAdministrator: true
       });
       
       await defaultAdmin.save();
-      console.log('Default admin user created');
+    } else {
+      try {
+        const isPasswordValid = await bcrypt.compare('123', existingAdmin.password);
+        if (!isPasswordValid) {
+          existingAdmin.password = '123'; 
+          await existingAdmin.save();
+        }
+      } catch (err) {
+        console.error('Error checking admin password:', err);
+      }
     }
   } catch (error) {
-    console.error('Failed to create default admin:', error);
+    console.error('Failed to create/update default admin:', error);
   }
 };

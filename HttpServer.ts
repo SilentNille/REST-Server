@@ -23,13 +23,11 @@ app.use('/api/authenticate', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/degreeCourses', degreeCourseRouter);
 
-// Start database connection
-startDB().then(() => {
-  // Create default admin user if it doesn't exist
-  createDefaultAdmin();
+startDB().then(async () => {
+  await createDefaultAdmin();
   
   app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
   });
 }).catch(err => {
   console.error('Failed to start database:', err);
