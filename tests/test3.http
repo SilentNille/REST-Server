@@ -1,0 +1,268 @@
+// Login mit Basic Authentication mit korrekten Credentials admin:123
+// ERFOLG: Sollte erfolgreich sein und einen Token zurückgeben
+###
+# @name loginAdminCorrect
+GET https://localhost/api/authenticate
+Authorization: Basic YWRtaW46MTIz
+
+@adminToken = {{loginAdminCorrect.response.headers.Authorization}}
+
+// Login mit Basic Authentication mit falschen Credentials
+// FEHLER: Sollte mit 401 Unauthorized fehlschlagen
+###
+GET https://localhost/api/authenticate
+Authorization: Basic admin:1234
+
+// Auflisten aller Nutzer ohne Token
+// FEHLER: Sollte mit 401 Unauthorized fehlschlagen (fehlende Authentifizierung)
+###
+GET https://localhost/api/users
+
+// Auflisten aller Nutzer mit Token(Admin)
+// ERFOLG: Sollte eine Liste aller Nutzer zurückgeben (Admin-Berechtigung)
+###
+GET https://localhost/api/users
+Authorization: {{adminToken}}
+
+// Abrufen eines konkreten Users per User-ID
+// ERFOLG: Sollte den Admin-User zurückgeben
+###
+GET https://localhost/api/users/admin
+Authorization: {{adminToken}}
+
+// Lege zweiten User an
+// ERFOLG: Sollte den User "manfred" anlegen
+###
+POST https://localhost/api/users
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "userID": "manfred",
+    "firstName": "Manfred",
+    "lastName": "Müller",
+    "password": "asdf"
+}
+
+// Aktualisieren des Nutzers "manfred"
+// ERFOLG: Sollte den Nachnamen auf "Schreiber" ändern
+###
+PUT https://localhost/api/users/manfred
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "firstName": "Manfred",
+    "lastName": "Schreiber"
+}
+
+// Auflisten aller Nutzer mit Token
+// ERFOLG: Sollte eine Liste aller Nutzer zurückgeben
+###
+GET https://localhost/api/users
+Authorization: {{adminToken}}
+
+//
+// Studiengänge
+//
+// Auflisten aller Studiengänge
+// ERFOLG: Sollte eine (leere) Liste der Studiengänge zurückgeben
+###
+GET https://localhost/api/degreeCourses
+Authorization: {{adminToken}}
+
+// Lege einen Studiengang an
+// ERFOLG: Sollte einen neuen Studiengang anlegen und dessen ID zurückgeben
+###
+# @name createDegreeCourseRequest
+POST https://127.0.0.1/api/degreeCourses
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "universityName": "Beuth Hochschule für Technik Berlin",
+    "universityShortName": "Beuth HS",
+    "departmentName": "Informatik und Medien",
+    "departmentShortName": "FB VI",
+    "name": "Orchideenzucht Bachelor",
+    "shortName": "OZ-BA"
+}
+
+###
+@degreeCourseID = {{createDegreeCourseRequest.response.body.id}}
+
+// Auflisten aller Studiengänge, es sollte jetzt einen geben
+// ERFOLG: Sollte den neu angelegten Studiengang in der Liste zurückgeben
+###
+GET https://localhost/api/degreeCourses
+Authorization: {{adminToken}}
+
+// Abrufen von dem angelegten Studiengang
+// ERFOLG: Sollte den spezifischen Studiengang zurückgeben
+###
+GET https://localhost/api/degreeCourses/{{degreeCourseID}}
+Authorization: {{adminToken}}
+
+
+// Ändere den Namen des Studiengangs
+// ERFOLG: Sollte den Namen des Studiengangs auf "Tulpenzucht" ändern
+###
+PUT https://localhost/api/degreeCourses/{{degreeCourseID}}
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "name": "Tulpenzucht"
+}
+
+// Auflisten der Studiengänge einer bestimmten Hochschule
+// ERFOLG: Sollte alle Studiengänge der Beuth HS zurückgeben
+###
+GET https://localhost/api/degreeCourses?universityShortName=Beuth HS
+Authorization: {{adminToken}}
+
+// Auflisten aller Studienbewerbungen, es sollte noch keine geben
+// ERFOLG: Sollte eine leere Liste zurückgeben, da noch keine Bewerbungen existieren
+###
+GET https://localhost/api/degreeCourseApplications
+Authorization: {{adminToken}}
+
+// Login mit Basic Authentication als manfred mit korrekten Credentials
+// ERFOLG: Sollte für Manfred einen Token zurückgeben
+###
+# @name loginManfredCorrect
+GET https://localhost/api/authenticate
+Authorization: Basic manfred:asdf
+###
+@manfredToken = {{loginManfredCorrect.response.headers.Authorization}}
+
+// Studienbewerbungen für manfred auflisten (es sollte 0 sein)
+// ERFOLG: Sollte eine leere Liste zurückgeben, da Manfred noch keine Bewerbungen hat
+###
+GET https://localhost/api/degreeCourseApplications/myApplications
+Authorization: {{manfredToken}}
+
+// Studienbewerbung für Manfred anlegen
+// ERFOLG: Sollte eine Bewerbung für Manfred anlegen
+###
+# @name createApplicationRequest
+POST https://localhost/api/degreeCourseApplications
+Authorization: {{manfredToken}}
+Content-Type: application/json
+
+{
+    "degreeCourseID": "{{degreeCourseID}}",
+    "targetPeriodYear": 2024,
+    "targetPeriodShortName": "WiSe"
+}
+
+// Lege dritten User an
+// ERFOLG: Sollte einen weiteren User "susi" anlegen
+###
+POST https://localhost/api/users
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "userID": "susi",
+    "firstName": "Susi",
+    "lastName": "Sunkist",
+    "password": "asdf"
+}
+
+// In diesem Fall legt der Administrator für den User susi eine Bewerbung an
+// ERFOLG: Der Admin sollte für einen anderen User eine Bewerbung anlegen können
+###
+POST https://localhost/api/degreeCourseApplications
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "applicantUserID": "susi",
+    "degreeCourseID": "{{degreeCourseID}}",
+    "targetPeriodYear": 2024,
+    "targetPeriodShortName": "WiSe"
+}
+
+// In diesem Fall legt der Administrator für den User manfred erneut die gleiche Bewerbung an
+// FEHLER: Sollte fehlschlagen, da für den gleichen Studiengang und Semester bereits eine Bewerbung existiert
+###
+POST https://localhost/api/degreeCourseApplications
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "applicantUserID": "manfred",
+    "degreeCourseID": "{{degreeCourseID}}",
+    "targetPeriodYear": 2024,
+    "targetPeriodShortName": "WiSe"
+}
+
+###
+@applicationID = {{createApplicationRequest.response.body.id}}
+
+// Studienbewerbungen für manfred auflisten (es sollte 1 sein)
+// ERFOLG: Sollte genau eine Bewerbung von Manfred zurückgeben
+###
+GET https://localhost/api/degreeCourseApplications/myApplications
+Authorization: {{manfredToken}}
+
+// Der Admin sucht nach Bewerbungen von Manfred
+// ERFOLG: Sollte alle Bewerbungen von Manfred zurückgeben (eine)
+###
+GET https://localhost/api/degreeCourseApplications?applicantUserID=manfred
+Authorization: {{adminToken}}
+
+// Auflisten der Bewerbungen für einen Studiengang
+// ERFOLG: Sollte alle Bewerbungen für den Studiengang zurückgeben (zwei: von manfred und susi)
+###
+GET https://localhost/api/degreeCourseApplications?degreeCourseID={{degreeCourseID}}
+Authorization: {{adminToken}}
+
+// Anlegen einer Bewerbung für einen Studiengang, den es nicht gibt
+// FEHLER: Sollte fehlschlagen, da die angegebene Studiengang-ID nicht existiert
+###
+POST https://localhost/api/degreeCourseApplications
+Authorization: {{manfredToken}}
+Content-Type: application/json
+
+{
+    "degreeCourseID": "gibt es nicht",
+    "targetPeriodYear": 2024,
+    "targetPeriodShortName": "WiSe"
+}
+
+// Nachgelagerte Suche für Studienbewerbungen
+// ERFOLG: Sollte alle Bewerbungen für den Studiengang zurückgeben
+###
+GET https://localhost/api/degreeCourses/{{degreeCourseID}}/degreeCourseApplications
+Authorization: {{adminToken}}
+
+// Ändere das Bewerbungsjahr in der existierenden Bewerbung
+// ERFOLG: Sollte das Jahr der Bewerbung auf 2025 ändern
+###
+PUT https://localhost/api/degreeCourseApplications/{{applicationID}}
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "targetPeriodYear": 2025
+}
+
+// Löschen von der Bewerbung
+// ERFOLG: Sollte die Bewerbung erfolgreich löschen
+###
+DELETE https://localhost/api/degreeCourseApplications/{{applicationID}}
+Authorization: {{adminToken}}
+
+// Löschen des Studiengangs
+// ERFOLG: Sollte den Studiengang erfolgreich löschen
+###
+DELETE https://localhost/api/degreeCourses/{{degreeCourseID}}
+Authorization: {{adminToken}}
+
+// Löschen des Users
+// ERFOLG: Sollte den User "manfred" erfolgreich löschen
+###
+DELETE https://localhost/api/users/manfred
+Authorization: {{adminToken}}
