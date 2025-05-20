@@ -18,7 +18,7 @@ Authorization: Basic admin:asdf
 
 // FAIL: List all users without providing a token
 // Expected: 401 Unauthorized with error message
-### 
+###
 GET http://localhost/api/users
 
 // SUCCESS: List all users with admin token

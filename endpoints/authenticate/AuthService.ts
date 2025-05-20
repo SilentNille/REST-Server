@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import { User, IUser } from '../users/UserModel.js';
 import bcrypt from 'bcryptjs';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { User } from '../users/UserModel.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -34,26 +34,19 @@ export const authenticateUser = async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign(
-      { 
+      {
         userID: user.userID,
         isAdministrator: user.isAdministrator,
         firstName: user.firstName,
-        lastName: user.lastName 
-      }, 
-      JWT_SECRET, 
+        lastName: user.lastName
+      },
+      JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    res.setHeader('Authorization', token);
-    
-    const userResponse = {
-      userID: user.userID,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isAdministrator: user.isAdministrator
-    };
-    
-    res.status(200).json(userResponse);
+    res.setHeader('Authorization', 'Bearer ' + token);
+
+    res.status(200).json(null);
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -63,13 +56,13 @@ export const authenticateUser = async (req: Request, res: Response) => {
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
     const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
-    
+
     const decoded = jwt.verify(token, JWT_SECRET) as DecodedUser;
     res.locals.user = decoded;
     next();
@@ -89,7 +82,7 @@ export const verifyAdmin = (req: Request, res: Response, next: NextFunction) => 
 export const createDefaultAdmin = async () => {
   try {
     const existingAdmin = await User.findOne({ userID: 'admin' });
-    
+
     if (!existingAdmin) {
       const defaultAdmin = new User({
         userID: 'admin',
@@ -98,13 +91,13 @@ export const createDefaultAdmin = async () => {
         lastName: 'User',
         isAdministrator: true
       });
-      
+
       await defaultAdmin.save();
     } else {
       try {
         const isPasswordValid = await bcrypt.compare('123', existingAdmin.password);
         if (!isPasswordValid) {
-          existingAdmin.password = '123'; 
+          existingAdmin.password = '123';
           await existingAdmin.save();
         }
       } catch (err) {

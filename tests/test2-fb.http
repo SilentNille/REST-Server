@@ -1,0 +1,239 @@
+// Milestone 2 REST Server Tests from Feedback
+// Created based on Feedback-Milestone2.md
+// ======================================================
+
+// Test 1: Abrufen der User beim Start über /publicUser
+// Expected: 200 OK with admin user in array
+###
+GET http://localhost/api/publicUsers
+
+// Test 2: Authentication mit dem Administrator
+// Expected: 200 OK with token in Authorization header and user details in body
+###
+# @name loginAdminCorrect
+GET http://localhost/api/authenticate
+Authorization: Basic YWRtaW46MTIz
+
+@adminToken = {{loginAdminCorrect.response.headers.Authorization}}
+
+// Test 3: Authentifizierung mit falschen Credentials
+// Expected: 401 Unauthorized with error message
+###
+GET http://localhost/api/authenticate
+Authorization: Basic YXNkZjphc2Rm
+
+// Test 4: Abrufen der User ohne Token
+// Expected: 401 Unauthorized with error message
+###
+GET http://localhost/api/users
+
+// Test 5: Abrufen der User mit Token
+// Expected: 200 OK with array of users
+###
+GET http://localhost/api/users
+Authorization: {{adminToken}}
+
+// Test 6: Abrufen des Administrators
+// Expected: 200 OK with admin user details (without password)
+###
+GET http://localhost/api/users/admin
+Authorization: {{adminToken}}
+
+// Test 7: Administrator erneut anlegen
+// Expected: Error status code (conflict or bad request)
+###
+POST http://localhost/api/users
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Udo",
+  "lastName": "Müller",
+  "password": "123",
+  "isAdministrator": true,
+  "userID": "admin"
+}
+
+// Test 8: Zweiten Nutzer ohne Token anlegen
+// Expected: 401 Unauthorized with error message
+###
+POST http://localhost/api/users
+Content-Type: application/json
+
+{
+  "firstName": "Manfred",
+  "lastName": "Mustermann",
+  "password": "asdf",
+  "isAdministrator": false,
+  "userID": "manfred"
+}
+
+// Test 9: Zweiten Nutzer mit Token anlegen
+// Expected: 200 OK or 201 Created with user details
+###
+# @name createUser
+POST http://localhost/api/users
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Manfred",
+  "lastName": "Mustermann",
+  "password": "asdf",
+  "isAdministrator": false,
+  "userID": "manfred"
+}
+
+// Test 10: Abrufen des zweiten Users
+// Expected: 200 OK with user details
+###
+GET http://localhost/api/users/manfred
+Authorization: {{adminToken}}
+
+// Test 11: Anlegen von User ohne User-ID
+// Expected: 400 Bad Request or similar error
+###
+POST http://localhost/api/users
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Alonso",
+  "lastName": "Ferari",
+  "password": "as"
+}
+
+// Test 12: Authentication mit dem User Manfred
+// Expected: 200 OK with token and user details
+###
+# @name loginManfred
+GET http://localhost/api/authenticate
+Authorization: Basic bWFuZnJlZDphc2Rm
+
+@manfredToken = {{loginManfred.response.headers.Authorization}}
+
+// Test 13: Zweiten Nutzer aktualisieren
+// Expected: 200 OK with updated user details
+###
+PUT http://localhost/api/users/manfred
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "password": "aaa"
+}
+
+// Test 14: Login als manfred mit geänderten Passwort
+// Expected: 200 OK with token and user details
+###
+GET http://localhost/api/authenticate
+Authorization: Basic bWFuZnJlZDphYWE=
+
+// Test 15: Abrufen der Studiengänge
+// Expected: 200 OK with array of degree courses (may be empty)
+###
+GET http://localhost/api/degreeCourses
+Authorization: {{adminToken}}
+
+// Test 16: Studiengang ohne Token anlegen
+// Expected: 401 Unauthorized with error message
+###
+POST http://localhost/api/degreeCourses
+Content-Type: application/json
+
+{
+  "universityName": "Berliner Hochschule für Technik",
+  "universityShortName": "BHT",
+  "departmentName": "Informatik und Medien",
+  "departmentShortName": "FB VI",
+  "name": "Orchideenzucht Bachelor",
+  "shortName": "OZ-BA"
+}
+
+// Test 17: Studiengang mit Token anlegen
+// Expected: 200 OK or 201 Created with degree course details
+###
+# @name createDegreeCourse
+POST http://localhost/api/degreeCourses
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "universityName": "Berliner Hochschule für Technik",
+  "universityShortName": "BHT",
+  "departmentName": "Informatik und Medien",
+  "departmentShortName": "FB VI",
+  "name": "Orchideenzucht Bachelor",
+  "shortName": "OZ-BA"
+}
+
+@degreeCourseID = {{createDegreeCourse.response.body.id}}
+
+// Test 18: Abrufen des Studiengangs
+// Expected: 200 OK with degree course details
+###
+GET http://localhost/api/degreeCourses/{{degreeCourseID}}
+Authorization: {{adminToken}}
+
+// Test 19: Studiengang aktualisieren
+// Expected: 200 OK with updated degree course details
+###
+PUT http://localhost/api/degreeCourses/{{degreeCourseID}}
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Tulpenzucht Bachelor"
+}
+
+// Test 20: Abrufen von Studiengängen über Suchparameter
+// Expected: 200 OK with array of matching degree courses
+###
+GET http://localhost/api/degreeCourses?universityShortName=BHT
+Authorization: {{adminToken}}
+
+// Test 21: Löschen des Studiengangs
+// Expected: 204 No Content
+###
+DELETE http://localhost/api/degreeCourses/{{degreeCourseID}}
+Authorization: {{adminToken}}
+
+// Test 22: Abrufen eines nicht-existenten Users
+// Expected: 404 Not Found or similar error
+###
+GET http://localhost/api/users/asdfasdf
+Authorization: {{adminToken}}
+
+// Test 23: Löschen des Users manfred ohne Token
+// Expected: 401 Unauthorized with error message
+###
+DELETE http://localhost/api/users/manfred
+
+// Test 24: Löschen des Users manfred
+// Expected: 204 No Content
+###
+DELETE http://localhost/api/users/manfred
+Authorization: {{adminToken}}
+
+// Test 25: Prüfe, ob manfred gelöscht ist
+// Expected: 404 Not Found or similar error
+###
+GET http://localhost/api/users/manfred
+Authorization: {{adminToken}}
+
+// Test 26: Löschen eines nicht-existenten Users
+// Expected: Error status code
+###
+DELETE http://localhost/api/users/asdfasdf
+Authorization: {{adminToken}}
+
+// Test 27: Aktualisieren eines nicht-existenten Users
+// Expected: Error status code
+###
+PUT http://localhost/api/users/asdfasdf
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "password": "aaa"
+}

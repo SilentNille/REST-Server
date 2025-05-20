@@ -1,0 +1,47 @@
+###
+# @name loginAdmin
+GET http://localhost/api/authenticate
+Authorization: Basic YWRtaW46MTIz
+
+@adminToken = {{loginAdmin.response.headers.Authorization}}
+
+###
+# @name getAllUsers
+GET http://localhost/api/users
+Authorization: {{adminToken}}
+
+###
+GET http://localhost/api/publicUsers
+
+###
+# @name getAllDegreeCourses
+GET http://localhost/api/degreeCourses
+Authorization: {{adminToken}}
+
+###
+# @name getAllApplications
+GET http://localhost/api/degreeCourseApplications
+Authorization: {{adminToken}}
+
+###
+DELETE http://localhost/api/degreeCourseApplications/
+Authorization: {{adminToken}}
+
+###
+DELETE http://localhost/api/degreeCourses/
+Authorization: {{adminToken}}
+
+###
+DELETE http://localhost/api/users/
+
+###
+DELETE http://localhost/api/users/
+Authorization: {{adminToken}}
+
+###
+DELETE http://localhost/api/degreeCourses/
+Authorization: {{adminToken}}
+
+###
+DELETE http://localhost/api/degreeCourseApplications/
+Authorization: {{adminToken}}

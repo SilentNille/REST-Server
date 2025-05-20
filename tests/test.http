@@ -1,4 +1,4 @@
-// Rufe alle User ab. Zu Beginn sollten keine User in der Datenbank sein. 
+// Rufe alle User ab. Zu Beginn sollten keine User in der Datenbank sein.
 ###
 GET http://localhost/api/publicUsers
 
@@ -15,9 +15,10 @@ Content-Type: application/json
     "isAdministrator": true
 }
 
-// Rufe den User mit UserID admin ab. 
+// Rufe den User mit UserID admin ab.
 ###
 GET http://localhost/api/publicUsers/admin
+###
 
 // Lege zweiten User an. Prüfe UserID sowie den Namen, ob die Angaben korrekt sind.
 ###
