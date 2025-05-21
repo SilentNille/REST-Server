@@ -1,0 +1,77 @@
+{
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "When creating commit messages for this REST-Server project, follow these guidelines:"
+    },
+    {
+      "text": "1. Start with milestone identifier in square brackets: [Milestone 1], [Milestone 2], or [Milestone 3]"
+    },
+    {
+      "text": "2. Write a clear, concise description of what was changed"
+    },
+    {
+      "text": "3. Use present tense for actions (e.g., 'Add' not 'Added', 'Fix' not 'Fixed')"
+    },
+    {
+      "text": "4. Use profanity, slang terms, or informal language"
+    },
+    {
+      "text": "5. Keep the first line under 72 characters"
+    },
+    {
+      "text": "6. After a blank line, list modified files in square brackets prefixed with 'Files:'"
+    },
+    {
+      "text": "Example: [Milestone 3] Implement degree course applications endpoint"
+    },
+    {
+      "text": "Files: [DegreeCourseApplicationModel.ts, DegreeCourseApplicationService.ts, DegreeCourseApplicationRoute.ts]"
+    }
+  ],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "editor.tabSize": 4,
+  "editor.rulers": [100],
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "double",
+  "javascript.preferences.quoteStyle": "double",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": true,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "editor.suggestSelection": "first",
+  "explorer.compactFolders": false,
+  "editor.renderControlCharacters": true,
+  "editor.minimap.renderCharacters": false,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.highlightModifiedTabs": true,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[http]": {
+    "editor.formatOnSave": false
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.vscode": false
+  },
+  "files.associations": {
+    "*.http": "http"
+  }
+}
+

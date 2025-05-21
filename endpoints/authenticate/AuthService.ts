@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
+import config from 'config';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../users/UserModel.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = config.get<string>('session-config.tokenKey');
 
 export interface DecodedUser {
   userID: string;
@@ -33,6 +34,7 @@ export const authenticateUser = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    const tokenExpireSeconds = config.get<number>('session-config.tokenTTL');
     const token = jwt.sign(
       {
         userID: user.userID,
@@ -41,7 +43,7 @@ export const authenticateUser = async (req: Request, res: Response) => {
         lastName: user.lastName
       },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: tokenExpireSeconds }
     );
 
     res.setHeader('Authorization', 'Bearer ' + token);

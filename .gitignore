@@ -2,9 +2,9 @@ node_modules
 dist
 .idea
 .DS_Store
-*.env
-.gitignore
-.github
-REASDME.md
-.vscode
-docs/
+# *.env
+# .gitignore
+# .github
+# REASDME.md
+# .vscode
+# docs/
